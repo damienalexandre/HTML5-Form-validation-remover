@@ -1,18 +1,21 @@
 {
 	"$schema": "https://json.schemastore.org/chrome-manifest",
-	"name": "HTML5 Form Validation Remover",
-	"version": "2.0.0",
-	"description": "Removes HTML5 form validation messages and allows form submission without validation",
-	"homepage_url": "https://github.com/dalexandre/HTML5-Form-validation-remover",
+	"name": "HTML5 Form validation remover",
+	"version": "3.0.0",
+	"description": "Simple button to press when you want HTML5 Form validation to be removed from all the forms. Removes HTML5 form constraints, allowing you to submit any form even with required attributes.",
+	"homepage_url": "https://github.com/damienalexandre/form-validation-remover",
 	"manifest_version": 3,
 	"minimum_chrome_version": "88",
 	"browser_specific_settings": {
 		"gecko": {
-			"id": "html5-form-validation-remover@dalexandre.github.io",
+			"id": "html5-form-validation-remover@damienalexandre.github.io",
 			"strict_min_version": "109.0"
 		}
 	},
 	"icons": {
+		"16": "icon.png",
+		"32": "icon.png",
+		"48": "icon.png",
 		"128": "icon.png"
 	},
 	"permissions": [
@@ -32,6 +35,6 @@
 	},
 	"action": {
 		"default_icon": "icon.png",
-		"default_title": "Remove HTML5 Form Validation (click to activate on current page)"
+		"default_title": "Remove HTML5 Form validation"
 	}
 }

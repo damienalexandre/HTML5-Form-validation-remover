@@ -1,12 +1,22 @@
-# HTML5 Form Validation Remover
+# HTML5 Form validation remover
 
-A Chrome extension that removes HTML5 form validation messages and allows form submission without validation constraints.
+Simple extension to **remove HTML5 Form constraints**, allowing you to submit any form in webpages even if there is a `required` attribute or other custom HTML5 input type.
+
+![](media/demo.gif)
+
+This extension adds a `novalidate` attribute on all the forms of the current page, even the ones loaded via AJAX. Additionally, it prevents the browser from showing validation messages and hides validation bubbles via CSS.
+
+The public of this extension is mainly developers wishing to test their backend form validation from a modern browser.
+
+## Download and install from the Chrome Web Store
+
+[![Chrome Web Store](media/chrome.png)](https://chrome.google.com/webstore/detail/html5-form-validation-rem/dcpagcgkpeflhhampddilklcnjdjlmlb)
 
 ## Features
 
 - **Manifest V3 Compliant**: Fully compatible with Chrome's Manifest V3 requirements
+- **On-demand activation**: Does nothing until you click the icon - respects user privacy
 - **Removes HTML5 validation**: Disables browser-native form validation
-- **On-demand activation**: **Does nothing until you click the icon** - respects user privacy
 - **Multiple removal methods**:
   - Adds `novalidate` attribute to all forms
   - Prevents the `invalid` event from showing validation UI
@@ -14,36 +24,7 @@ A Chrome extension that removes HTML5 form validation messages and allows form s
   - Hides validation bubbles via CSS
 - **Configurable**: Enable/disable each removal method via options page
 - **Minimal permissions**: Only requests `activeTab`, `scripting`, `storage`, and `notifications`
-
-## Installation
-
-### Development
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/dalexandre/HTML5-Form-validation-remover.git
-   cd HTML5-Form-validation-remover
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Build the extension:
-   ```bash
-   npm run build
-   ```
-
-4. Load in Chrome:
-   - Go to `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked"
-   - Select the `distribution` folder
-
-### From Chrome Web Store
-
-*Coming soon - extension needs to be published*
+- **Works on dynamically loaded forms**: MutationObserver handles AJAX-loaded content
 
 ## Usage
 
@@ -54,7 +35,8 @@ A Chrome extension that removes HTML5 form validation messages and allows form s
 1. Navigate to any webpage with HTML5 form validation
 2. Click the extension icon in the Chrome toolbar
 3. The extension injects the necessary code to remove validation on **that page only**
-4. A notification confirms activation
+4. A notification and temporary green checkmark badge confirm activation
+5. Try to submit a form with empty required fields - it will submit without validation!
 
 ### Configure Options
 
@@ -76,48 +58,6 @@ Each time you click the icon, the extension activates on the **current page only
 - Track your browsing activity
 - Require `<all_urls>` permission
 
-## How It Works
-
-### 1. Novalidate Attribute
-The extension adds the `novalidate` attribute to all `<form>` elements on the page:
-```html
-<form novalidate>
-  <!-- form fields -->
-</form>
-```
-This tells the browser not to perform HTML5 validation on form submission.
-
-### 2. Invalid Event Prevention
-The extension listens for the `invalid` event in the capture phase and calls `preventDefault()`:
-```javascript
-document.addEventListener('invalid', function(event) {
-  event.preventDefault();
-  event.target.setCustomValidity('');
-}, true);
-```
-This prevents the browser from showing its native validation popup.
-
-### 3. CSS Hiding
-The extension injects CSS to hide validation bubbles:
-```css
-::-webkit-validation-bubble {
-  display: none !important;
-}
-:invalid {
-  box-shadow: none !important;
-}
-```
-
-### 4. Dynamic Content
-A MutationObserver watches for new form elements added to the DOM and applies the same treatments.
-
-## Compatibility
-
-- **Chrome**: 88+ (Manifest V3)
-- **Firefox**: Supported via browser-specific settings (gecko.id configured)
-- **Edge**: Supported (Manifest V3)
-- **Brave**: Supported (Manifest V3)
-
 ## Privacy
 
 This extension is designed with privacy in mind:
@@ -128,25 +68,53 @@ This extension is designed with privacy in mind:
 - **On-demand only**: Completely inactive until you explicitly use it
 - **No data collection**: Does not send any data to external servers
 
+## Compatibility
+
+- **Chrome**: 88+ (Manifest V3)
+- **Firefox**: Supported via browser-specific settings (gecko.id configured)
+- **Edge**: Supported (Manifest V3)
+- **Brave**: Supported (Manifest V3)
+
 ## Migration from Manifest V2
 
 This extension is built on **Manifest V3**, which is required by Chrome starting August 31, 2026. All Manifest V2 extensions will be removed from the Chrome Web Store on that date.
 
 ### Key Changes from V2 to V3:
 
-1. **Service Worker**: Replaces background pages
-2. **Declarative APIs**: For network requests (not used in this extension)
-3. **Permissions**: More granular permission controls
-4. **Remote Code**: Restricted execution of remote code
+1. **On-demand activation**: Extension now only runs when you click the icon (was persistent in V2)
+2. **Service Worker**: Replaces background pages
+3. **Declarative APIs**: For network requests (not used in this extension)
+4. **Permissions**: More granular permission controls
+5. **Remote Code**: Restricted execution of remote code
 
 This extension is fully compliant with Manifest V3 requirements.
+
+## Changelog
+
+### Version 3.0.0 (July 2026)
+
+- **Major refactor**: Migrated from Manifest V2 to Manifest V3
+- **Privacy improvement**: On-demand injection instead of persistent content scripts
+- **No `<all_urls>` permission**: Extension does nothing without user action
+- **Firefox compatibility**: Added `background.scripts` for Firefox support
+- **Temporary feedback**: Green checkmark badge appears for 2 seconds on activation
+- **Updated icon**: Restored original extension icon
+
+### Version 2.0 (July 2017)
+
+- No more permissions needed! Using `activeTab` instead of `<all_urls>`
+- Button is now a toggle specific to the current page
+- Forms added asynchronously are also handled
+
+### Version 1 (April 2013)
+
+- Initial release
 
 ## Development
 
 ### Commands
 
 - `npm run build` - Build the extension to `distribution/` folder
-- `npm run watch` - Watch for changes and rebuild automatically
 - `npm run lint` - Run linters
 - `npm run lint:fix` - Fix linting issues
 - `npm test` - Run all linters and build
@@ -157,12 +125,11 @@ This extension is fully compliant with Manifest V3 requirements.
 source/
 ├── manifest.json          # Extension manifest (V3)
 ├── background.js          # Service worker (background script)
-├── content.js             # Content script (injected into pages)
-├── content.css            # Styles for content script
-├── options.html           # Options page
-├── options.js             # Options page script
-├── options.css            # Options page styles
-└── options-storage.js     # Options management with webext-options-sync
+└── options-storage.js     # Options management
+
+media/
+├── logo.png              # Store logo
+└── demo.gif              # Demo animation
 
 distribution/             # Built extension files (generated)
 ```
@@ -173,11 +140,44 @@ distribution/             # Built extension files (generated)
 - [webext-options-sync](https://github.com/fregante/webext-options-sync) - Sync options across tabs
 - [webext-base-css](https://github.com/fregante/webext-base-css) - Base styles for options page
 
+## How to release
+
+### For Chrome Web Store
+
+1. Build the extension:
+   ```bash
+   rm -rf distribution/ release/
+   npm run build
+   ```
+
+2. Create a clean ZIP:
+   ```bash
+   cd distribution
+   zip -r ../html5-form-validation-remover-v3.0.0.zip .
+   cd ..
+   ```
+
+3. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
+4. Select your existing extension (ID: `dcpagcgkpeflhhampddilklcnjdjlmlb`)
+5. Upload the ZIP file
+6. Fill in the details and submit for review
+
+### For Firefox Add-ons
+
+1. Build the extension:
+   ```bash
+   npx web-ext build --source-dir=distribution --artifacts-dir=release
+   ```
+
+2. Go to [AMO Developer Hub](https://addons.mozilla.org/developers/)
+3. Upload the ZIP from `release/`
+4. Submit for review
+
 ## License
 
 MIT License - see LICENSE file for details.
 
 ## Credits
 
-- Icon: [Freepik](https://www.freepik.com) from [Flaticon](https://www.flaticon.com)
-- Template: [fregante/browser-extension-template](https://github.com/fregante/browser-extension-template)
+- Original extension by [Damien ALEXANDRE](https://github.com/damienalexandre)
+- Updated and maintained for Manifest V3 compatibility
