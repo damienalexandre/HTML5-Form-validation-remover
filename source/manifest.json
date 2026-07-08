@@ -1,14 +1,14 @@
 {
 	"$schema": "https://json.schemastore.org/chrome-manifest",
-	"name": "Awesome Extension",
-	"version": "0.0.0",
-	"description": "An awesome new browser extension",
-	"homepage_url": "https://github.com/fregante/browser-extension-template",
+	"name": "HTML5 Form Validation Remover",
+	"version": "1.0.0",
+	"description": "Removes HTML5 form validation messages and allows form submission without validation",
+	"homepage_url": "https://github.com/dalexandre/HTML5-Form-validation-remover",
 	"manifest_version": 3,
-	"minimum_chrome_version": "121",
+	"minimum_chrome_version": "88",
 	"browser_specific_settings": {
 		"gecko": {
-			"id": "awesome-extension@notlmn.github.io",
+			"id": "html5-form-validation-remover@dalexandre.github.io",
 			"strict_min_version": "109.0"
 		}
 	},
@@ -16,25 +16,31 @@
 		"128": "icon.png"
 	},
 	"permissions": [
-		"storage"
+		"storage",
+		"activeTab",
+		"tabs"
 	],
 	"host_permissions": [
-		"https://github.com/*"
+		"<all_urls>"
 	],
 	"content_scripts": [
 		{
-			"matches": [ "https://github.com/fregante/browser-extension-template/*" ],
+			"matches": [ "<all_urls>" ],
 			"js": [ "content.js" ],
 			"css": [ "content.css" ],
-			"run_at": "document_end"
+			"run_at": "document_start"
 		}
 	],
 	"options_ui": {
-		"page": "options.html"
+		"page": "options.html",
+		"open_in_tab": false
 	},
 	"background": {
 		"service_worker": "background.js",
-		"type": "module",
-		"scripts": [ "background.js" ]
+		"type": "module"
+	},
+	"action": {
+		"default_icon": "icon.png",
+		"default_title": "Toggle HTML5 Form Validation Remover"
 	}
 }

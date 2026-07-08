@@ -2,10 +2,10 @@ import OptionsSync from 'webext-options-sync';
 
 const optionsStorage = new OptionsSync({
 	defaults: {
-		colorRed: 244,
-		colorGreen: 67,
-		colorBlue: 54,
-		text: 'Set a text!',
+		enabled: true,
+		removeValidationMessages: true,
+		addNovalidateAttribute: true,
+		preventInvalidEvent: true,
 	},
 	migrations: [
 		OptionsSync.migrations.removeUnused,

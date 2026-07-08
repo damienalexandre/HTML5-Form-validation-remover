@@ -1,8 +1,46 @@
-#text-notice {
-	position: fixed;
-	top: 10px;
-	left: 10px;
-	padding: 10px;
-	background: #fff;
-	z-index: 999999;
+/* HTML5 Form Validation Remover - Content Styles */
+
+/* Hide HTML5 validation bubbles */
+/* Note: Some validation UI cannot be hidden via CSS alone,
+   but we can hide custom validation messages */
+
+:invalid {
+	box-shadow: none !important;
+}
+
+:invalid:not(:focus-within) {
+	/* Remove default invalid styling */
+}
+
+/* Hide WebKit validation bubble */
+::-webkit-validation-bubble {
+	display: none !important;
+}
+
+::-webkit-validation-bubble-arrow {
+	display: none !important;
+}
+
+::-webkit-validation-bubble-heading {
+	display: none !important;
+}
+
+::-webkit-validation-bubble-message {
+	display: none !important;
+}
+
+/* Hide Firefox validation message */
+:invalid:-moz-ui-invalid {
+	box-shadow: none !important;
+}
+
+/* Remove outline from invalid fields */
+input:invalid, textarea:invalid, select:invalid {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+/* Hide any custom validation messages */
+[role="alert"][aria-live="assertive"] {
+	display: none !important;
 }
