@@ -91,7 +91,6 @@ chrome.action.onClicked.addListener(async tab => {
 function removeValidation(passedOptions) {
 	const DEFAULT_OPTIONS = {
 		enabled: true,
-		removeValidationMessages: true,
 		addNovalidateAttribute: true,
 		preventInvalidEvent: true,
 	};
@@ -108,6 +107,23 @@ function removeValidation(passedOptions) {
 		for (const form of forms) {
 			form.setAttribute('novalidate', 'novalidate');
 		}
+
+		// Observe for dynamically added content
+		const observer = new MutationObserver(mutations => {
+			for (const mutation of mutations) {
+				if (mutation.addedNodes.length > 0) {
+					const newForms = document.querySelectorAll('form:not([novalidate])');
+					for (const newForm of newForms) {
+						newForm.setAttribute('novalidate', 'novalidate');
+					}
+				}
+			}
+		});
+
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
 	}
 
 	// Prevent the invalid event from showing validation UI
@@ -119,46 +135,6 @@ function removeValidation(passedOptions) {
 				target.setCustomValidity('');
 			}
 		}, true);
-	}
-
-	// Remove validation messages
-	if (currentOptions.removeValidationMessages) {
-		const validationMessages = document.querySelectorAll('.validation-message, [role="alert"]');
-		for (const message of validationMessages) {
-			message.remove();
-		}
-
-		const elementsWithDataAttributes = document.querySelectorAll('[data-validation-message], [x-moz-errormessage]');
-		for (const element of elementsWithDataAttributes) {
-			delete element.dataset.validationMessage;
-			delete element.dataset.mozErrormessage;
-		}
-
-		// Observe for dynamically added content
-		const observer = new MutationObserver(mutations => {
-			for (const mutation of mutations) {
-				if (mutation.addedNodes.length > 0) {
-					if (currentOptions.addNovalidateAttribute) {
-						const newForms = document.querySelectorAll('form:not([novalidate])');
-						for (const newForm of newForms) {
-							newForm.setAttribute('novalidate', 'novalidate');
-						}
-					}
-
-					if (currentOptions.removeValidationMessages) {
-						const newMessages = document.querySelectorAll('.validation-message, [role="alert"]');
-						for (const newMessage of newMessages) {
-							newMessage.remove();
-						}
-					}
-				}
-			}
-		});
-
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true,
-		});
 	}
 
 	console.log('HTML5 Form Validation Remover activated with options:', currentOptions);
