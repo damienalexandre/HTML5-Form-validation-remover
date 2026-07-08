@@ -33,30 +33,30 @@ const VALIDATION_REMOVER_CSS = `
 `;
 
 // Inject the content script and CSS into the active tab when the action is clicked
-chrome.action.onClicked.addListener(async (tab) => {
+chrome.action.onClicked.addListener(async tab => {
 	if (!tab.id) {
 		return;
 	}
 
 	try {
 		// Show temporary badge to confirm click
-		chrome.action.setBadgeText({ text: '\u2713' });  // Checkmark symbol
-		chrome.action.setBadgeBackgroundColor({ color: '#4CAF50' });  // Green
+		chrome.action.setBadgeText({text: '\u2713'}); // Checkmark symbol
+		chrome.action.setBadgeBackgroundColor({color: '#4CAF50'}); // Green
 
 		// Get current options to know what to inject
-		const options = await optionsStorage.getAll();
+		const currentOptions = await optionsStorage.getAll();
 
 		// Inject CSS first
 		await chrome.scripting.insertCSS({
-			target: { tabId: tab.id },
+			target: {tabId: tab.id},
 			css: VALIDATION_REMOVER_CSS,
 		});
 
 		// Inject JavaScript
 		await chrome.scripting.executeScript({
-			target: { tabId: tab.id },
+			target: {tabId: tab.id},
 			func: removeValidation,
-			args: [options],
+			args: [currentOptions],
 		});
 
 		// Show a notification to confirm
@@ -69,26 +69,26 @@ chrome.action.onClicked.addListener(async (tab) => {
 
 		// Remove badge after 2 seconds
 		setTimeout(() => {
-			chrome.action.setBadgeText({ text: '' });
+			chrome.action.setBadgeText({text: ''});
 		}, 2000);
 	} catch (error) {
 		console.error('Failed to inject scripts:', error);
-		chrome.action.setBadgeText({ text: 'X' });
-		chrome.action.setBadgeBackgroundColor({ color: '#F44336' });  // Red
+		chrome.action.setBadgeText({text: 'X'});
+		chrome.action.setBadgeBackgroundColor({color: '#F44336'}); // Red
 		chrome.notifications.create({
 			type: 'basic',
 			iconUrl: 'icon.png',
 			title: 'Error',
-			message: 'Failed to activate: ' + error.message,
+			message: `Failed to activate: ${error.message}`,
 		});
 		setTimeout(() => {
-			chrome.action.setBadgeText({ text: '' });
+			chrome.action.setBadgeText({text: ''});
 		}, 2000);
 	}
 });
 
 // The actual validation removal logic (will be injected into the page)
-function removeValidation(options) {
+function removeValidation(passedOptions) {
 	const DEFAULT_OPTIONS = {
 		enabled: true,
 		removeValidationMessages: true,
@@ -96,22 +96,23 @@ function removeValidation(options) {
 		preventInvalidEvent: true,
 	};
 
-	const opts = { ...DEFAULT_OPTIONS, ...options };
+	const currentOptions = {...DEFAULT_OPTIONS, ...passedOptions};
 
-	if (!opts.enabled) {
+	if (!currentOptions.enabled) {
 		return;
 	}
 
 	// Add novalidate attribute to all forms
-	if (opts.addNovalidateAttribute) {
-		document.querySelectorAll('form:not([novalidate])').forEach(form => {
+	if (currentOptions.addNovalidateAttribute) {
+		const forms = document.querySelectorAll('form:not([novalidate])');
+		for (const form of forms) {
 			form.setAttribute('novalidate', 'novalidate');
-		});
+		}
 	}
 
 	// Prevent the invalid event from showing validation UI
-	if (opts.preventInvalidEvent) {
-		document.addEventListener('invalid', function(event) {
+	if (currentOptions.preventInvalidEvent) {
+		document.addEventListener('invalid', event => {
 			event.preventDefault();
 			const target = event.target;
 			if (target && target.setCustomValidity) {
@@ -121,29 +122,37 @@ function removeValidation(options) {
 	}
 
 	// Remove validation messages
-	if (opts.removeValidationMessages) {
+	if (currentOptions.removeValidationMessages) {
 		const validationMessages = document.querySelectorAll('.validation-message, [role="alert"]');
-		validationMessages.forEach(msg => msg.remove());
+		for (const message of validationMessages) {
+			message.remove();
+		}
 
-		document.querySelectorAll('[data-validation-message], [x-moz-errormessage]').forEach(el => {
-			el.removeAttribute('data-validation-message');
-			el.removeAttribute('x-moz-errormessage');
-		});
+		const elementsWithDataAttributes = document.querySelectorAll('[data-validation-message], [x-moz-errormessage]');
+		for (const element of elementsWithDataAttributes) {
+			delete element.dataset.validationMessage;
+			delete element.dataset.mozErrormessage;
+		}
 
 		// Observe for dynamically added content
-		const observer = new MutationObserver((mutations) => {
-			mutations.forEach((mutation) => {
-				if (mutation.addedNodes.length) {
-					if (opts.addNovalidateAttribute) {
-						document.querySelectorAll('form:not([novalidate])').forEach(form => {
-							form.setAttribute('novalidate', 'novalidate');
-						});
+		const observer = new MutationObserver(mutations => {
+			for (const mutation of mutations) {
+				if (mutation.addedNodes.length > 0) {
+					if (currentOptions.addNovalidateAttribute) {
+						const newForms = document.querySelectorAll('form:not([novalidate])');
+						for (const newForm of newForms) {
+							newForm.setAttribute('novalidate', 'novalidate');
+						}
 					}
-					if (opts.removeValidationMessages) {
-						document.querySelectorAll('.validation-message, [role="alert"]').forEach(msg => msg.remove());
+
+					if (currentOptions.removeValidationMessages) {
+						const newMessages = document.querySelectorAll('.validation-message, [role="alert"]');
+						for (const newMessage of newMessages) {
+							newMessage.remove();
+						}
 					}
 				}
-			});
+			}
 		});
 
 		observer.observe(document.body, {
@@ -152,5 +161,5 @@ function removeValidation(options) {
 		});
 	}
 
-	console.log('HTML5 Form Validation Remover activated with options:', opts);
+	console.log('HTML5 Form Validation Remover activated with options:', currentOptions);
 }
