@@ -6,13 +6,14 @@ A Chrome extension that removes HTML5 form validation messages and allows form s
 
 - **Manifest V3 Compliant**: Fully compatible with Chrome's Manifest V3 requirements
 - **Removes HTML5 validation**: Disables browser-native form validation
+- **On-demand activation**: **Does nothing until you click the icon** - respects user privacy
 - **Multiple removal methods**:
   - Adds `novalidate` attribute to all forms
   - Prevents the `invalid` event from showing validation UI
   - Removes validation message elements from the DOM
   - Hides validation bubbles via CSS
 - **Configurable**: Enable/disable each removal method via options page
-- **Toggle via icon**: Click the extension icon to enable/disable quickly
+- **Minimal permissions**: Only requests `activeTab`, `scripting`, `storage`, and `notifications`
 
 ## Installation
 
@@ -46,23 +47,34 @@ A Chrome extension that removes HTML5 form validation messages and allows form s
 
 ## Usage
 
-Once installed, the extension automatically removes HTML5 form validation from all web pages.
+**The extension does NOTHING by default.** It only activates when you explicitly click the icon.
 
-### Toggle Extension
+### Activate on Current Page
 
-Click the extension icon in the toolbar to enable or disable the extension. The badge will show:
-- **ON** (green) when enabled
-- **OFF** (red) when disabled
+1. Navigate to any webpage with HTML5 form validation
+2. Click the extension icon in the Chrome toolbar
+3. The extension injects the necessary code to remove validation on **that page only**
+4. A notification confirms activation
 
 ### Configure Options
 
+You can customize which validation removal methods are used:
+
 1. Right-click the extension icon
 2. Select "Options"
-3. Configure which validation removal methods to use:
-   - **Enable Extension**: Master switch
-   - **Add novalidate attribute to forms**: Adds `novalidate` to form elements
+3. Configure the methods:
+   - **Enable extension globally**: Master switch. When disabled, clicking the icon does nothing.
+   - **Add novalidate attribute to forms**: Adds `novalidate` to all form elements on the page
    - **Prevent invalid event**: Stops the browser from showing validation popups
-   - **Remove validation messages**: Actively removes validation elements from DOM
+   - **Remove validation messages**: Actively removes validation elements from the DOM
+
+### Per-Page Activation
+
+Each time you click the icon, the extension activates on the **current page only**. It does not:
+- Run on all pages automatically
+- Modify pages you haven't clicked on
+- Track your browsing activity
+- Require `<all_urls>` permission
 
 ## How It Works
 
@@ -102,9 +114,19 @@ A MutationObserver watches for new form elements added to the DOM and applies th
 ## Compatibility
 
 - **Chrome**: 88+ (Manifest V3)
-- **Firefox**: Supported via browser-specific settings
+- **Firefox**: Supported via browser-specific settings (gecko.id configured)
 - **Edge**: Supported (Manifest V3)
 - **Brave**: Supported (Manifest V3)
+
+## Privacy
+
+This extension is designed with privacy in mind:
+
+- **No persistent content scripts**: Code is injected only when you click the icon
+- **No `<all_urls>` permission**: Does not have access to all your web activity
+- **No background tracking**: Only uses `activeTab` permission for the current tab
+- **On-demand only**: Completely inactive until you explicitly use it
+- **No data collection**: Does not send any data to external servers
 
 ## Migration from Manifest V2
 
