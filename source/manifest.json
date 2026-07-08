@@ -18,18 +18,8 @@
 	"permissions": [
 		"storage",
 		"activeTab",
-		"tabs"
-	],
-	"host_permissions": [
-		"<all_urls>"
-	],
-	"content_scripts": [
-		{
-			"matches": [ "<all_urls>" ],
-			"js": [ "content.js" ],
-			"css": [ "content.css" ],
-			"run_at": "document_start"
-		}
+		"scripting",
+		"notifications"
 	],
 	"options_ui": {
 		"page": "options.html",
@@ -41,6 +31,6 @@
 	},
 	"action": {
 		"default_icon": "icon.png",
-		"default_title": "Toggle HTML5 Form Validation Remover"
+		"default_title": "Remove HTML5 Form Validation (click to activate on current page)"
 	}
 }
