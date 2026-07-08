@@ -1,7 +1,7 @@
 {
 	"$schema": "https://json.schemastore.org/chrome-manifest",
 	"name": "HTML5 Form Validation Remover",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "Removes HTML5 form validation messages and allows form submission without validation",
 	"homepage_url": "https://github.com/dalexandre/HTML5-Form-validation-remover",
 	"manifest_version": 3,
