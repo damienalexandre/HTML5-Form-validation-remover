@@ -39,6 +39,10 @@ chrome.action.onClicked.addListener(async (tab) => {
 	}
 
 	try {
+		// Show temporary badge to confirm click
+		chrome.action.setBadgeText({ text: '\u2713' });  // Checkmark symbol
+		chrome.action.setBadgeBackgroundColor({ color: '#4CAF50' });  // Green
+
 		// Get current options to know what to inject
 		const options = await optionsStorage.getAll();
 
@@ -62,14 +66,24 @@ chrome.action.onClicked.addListener(async (tab) => {
 			title: 'HTML5 Form Validation Remover',
 			message: 'Validation removal activated on this page.',
 		});
+
+		// Remove badge after 2 seconds
+		setTimeout(() => {
+			chrome.action.setBadgeText({ text: '' });
+		}, 2000);
 	} catch (error) {
 		console.error('Failed to inject scripts:', error);
+		chrome.action.setBadgeText({ text: 'X' });
+		chrome.action.setBadgeBackgroundColor({ color: '#F44336' });  // Red
 		chrome.notifications.create({
 			type: 'basic',
 			iconUrl: 'icon.png',
 			title: 'Error',
 			message: 'Failed to activate: ' + error.message,
 		});
+		setTimeout(() => {
+			chrome.action.setBadgeText({ text: '' });
+		}, 2000);
 	}
 });
 
